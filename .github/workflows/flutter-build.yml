@@ -163,12 +163,17 @@ jobs:
           head -n 100 "${VCPKG_ROOT}/buildtrees/ffmpeg/build-${{ matrix.job.vcpkg-triplet }}-rel-out.log" || true
         shell: bash
 
-      - name: Build rustdesk
+      - name: Build rustdesk (Hagen-IT Custom)
+        env:
+          MY_ID_SERVER: ${{ secrets.ID_SERVER }}
+          MY_PUB_KEY: ${{ secrets.PUB_KEY }}
         run: |
-          # Windows: build RustDesk
-          python3 .\build.py --portable --hwcodec --flutter --vram --skip-portable-pack
+          # Wir bauen RustDesk und "spritzen" deine Server-Daten via Dart-Define ein
+          python3 .\build.py --portable --hwcodec --flutter --vram --skip-portable-pack --arg="--dart-define=RS_ID_SERVER=$env:MY_ID_SERVER --dart-define=RS_PUB_KEY=$env:MY_PUB_KEY"
+          
+          # Ordner vorbereiten
           mv ./flutter/build/windows/x64/runner/Release ./rustdesk
-
+          
           # Download usbmmidd_v2.zip and extract it to ./rustdesk
           Invoke-WebRequest -Uri https://github.com/rustdesk-org/rdev/releases/download/usbmmidd_v2/usbmmidd_v2.zip -OutFile usbmmidd_v2.zip
           Expand-Archive usbmmidd_v2.zip -DestinationPath .
@@ -230,7 +235,7 @@ jobs:
         if: env.UPLOAD_ARTIFACT == 'true'
         uses: actions/upload-artifact@master
         with:
-          name: rustdesk-unsigned-windows-${{ matrix.job.arch }}
+          name: Hagen-IT-Fernwartung-Windows
           path: rustdesk
 
       - name: Sign rustdesk files
