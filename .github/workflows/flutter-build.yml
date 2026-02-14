@@ -165,13 +165,13 @@ jobs:
 
       - name: Build rustdesk (Hagen-IT Custom)
         env:
-          MY_ID_SERVER: ${{ secrets.ID_SERVER }}
-          MY_PUB_KEY: ${{ secrets.PUB_KEY }}
+          MY_ID_SERVER: ${{ secrets.RENDEZVOUS_SERVER }}
+          MY_PUB_KEY: ${{ secrets.RS_PUB_KEY }}
         run: |
-          # Wir bauen RustDesk und "spritzen" deine Server-Daten via Dart-Define ein
+          # Hier nutzen wir jetzt deine exakten Secret-Namen
           python3 .\build.py --portable --hwcodec --flutter --vram --skip-portable-pack --arg="--dart-define=RS_ID_SERVER=$env:MY_ID_SERVER --dart-define=RS_PUB_KEY=$env:MY_PUB_KEY"
           
-          # Ordner vorbereiten
+          # Ordner für den nächsten Schritt vorbereiten
           mv ./flutter/build/windows/x64/runner/Release ./rustdesk
           
           # Download usbmmidd_v2.zip and extract it to ./rustdesk
