@@ -167,12 +167,17 @@ jobs:
         env:
           MY_ID_SERVER: ${{ secrets.RENDEZVOUS_SERVER }}
           MY_PUB_KEY: ${{ secrets.RS_PUB_KEY }}
-        run: |
-          # Hier nutzen wir jetzt deine exakten Secret-Namen
-          python3 .\build.py --portable --hwcodec --flutter --vram --skip-portable-pack --arg="--dart-define=RS_ID_SERVER=$env:MY_ID_SERVER --dart-define=RS_PUB_KEY=$env:MY_PUB_KEY"
-          
-          # Ordner für den nächsten Schritt vorbereiten
-          mv ./flutter/build/windows/x64/runner/Release ./rustdesk
+        run: | 
+         # Wir nutzen die direkte Übergabe der Variablen
+         python3 .\build.py --portable --hwcodec --flutter --vram --skip-portable-pack --extra-flutter-args="--dart-define=RS_ID_SERVER=${{ env.MY_ID_SERVER }} --dart-define=RS_PUB_KEY=${{ env.MY_PUB_KEY }}"
+
+         # Sicherstellen, dass der Ordner nur verschoben wird, wenn er existiert
+         if (Test-Path "./flutter/build/windows/x64/runner/Release") {
+            mv ./flutter/build/windows/x64/runner/Release ./rustdesk
+         } else {
+            Write-Error "Build-Verzeichnis wurde nicht erstellt."
+            exit 1
+         }
           
           # Download usbmmidd_v2.zip and extract it to ./rustdesk
           Invoke-WebRequest -Uri https://github.com/rustdesk-org/rdev/releases/download/usbmmidd_v2/usbmmidd_v2.zip -OutFile usbmmidd_v2.zip
