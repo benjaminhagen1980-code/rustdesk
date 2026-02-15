@@ -164,20 +164,15 @@ jobs:
         shell: bash
 
       - name: Build rustdesk (Hagen-IT Custom)
-        env:
-          MY_ID_SERVER: ${{ secrets.RENDEZVOUS_SERVER }}
-          MY_PUB_KEY: ${{ secrets.RS_PUB_KEY }}
-        run: | 
-         # Wir nutzen die direkte Übergabe der Variablen
-         python3 .\build.py --portable --hwcodec --flutter --vram --skip-portable-pack --extra-flutter-args="--dart-define=RS_ID_SERVER=${{ env.MY_ID_SERVER }} --dart-define=RS_PUB_KEY=${{ env.MY_PUB_KEY }}"
-
-         # Sicherstellen, dass der Ordner nur verschoben wird, wenn er existiert
-         if (Test-Path "./flutter/build/windows/x64/runner/Release") {
+        run: |
+          python3 .\build.py --portable --hwcodec --flutter --vram --skip-portable-pack --extra-flutter-args="--dart-define=RS_ID_SERVER=rustdesk.hagen-it.tech --dart-define=RS_PUB_KEY=QboweRncrkfcreKn2opvZaUs0e0yP2pDUTCDjG927Tk="
+          
+          if (Test-Path "./flutter/build/windows/x64/runner/Release") {
             mv ./flutter/build/windows/x64/runner/Release ./rustdesk
-         } else {
+          } else {
             Write-Error "Build-Verzeichnis wurde nicht erstellt."
             exit 1
-         }
+          }
           
           # Download usbmmidd_v2.zip and extract it to ./rustdesk
           Invoke-WebRequest -Uri https://github.com/rustdesk-org/rdev/releases/download/usbmmidd_v2/usbmmidd_v2.zip -OutFile usbmmidd_v2.zip
